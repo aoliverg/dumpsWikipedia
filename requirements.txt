@@ -1,0 +1,2 @@
+mwparserfromhell==0.6.6
+mwxml==0.3.3
