@@ -5,7 +5,6 @@ import sys
 import argparse
 import codecs
 import os
-import re
 
 
 # Function to extract plain text from wikitext
@@ -22,35 +21,22 @@ def extract_categories_from_wikitext(wikitext, category_namespace):
             categories.append(str(link.title))
     return categories
 
-    
-parser = argparse.ArgumentParser(description='Script to convert Wikipedia dumps to text files according to a set of categories')
+parser = argparse.ArgumentParser(description='Script to explore categories from a Wikipedia dump')
 parser.add_argument('-d','--dump', action="store", dest="dump_path", help='The wikipedia dump.',required=True)
 parser.add_argument('-l','--language', action="store", dest="language", help='The language code (en, es, fr ...).',required=True)
-parser.add_argument('-o','--outdir', action="store", dest="outdir", help='The output directory.',required=True)
-parser.add_argument('-c','--categories', action="store", dest="categories", help='A file with one category per line.',required=False)
-parser.add_argument('-t','--titlesfile', action="store", dest="titlesfile", help='A file where the converted article titles will be stored. By default titles-list.txt.',required=False)
+parser.add_argument('-c','--categories', action="store", dest="category", help='A category or a list of categories separated by :.',required=True)
+parser.add_argument('-o','--outfile', action="store", dest="outfile", help='The output directory.',required=True)
+parser.add_argument('--limit', action="store", dest="limit", help='The limit in number of articles found.',required=False)
 
 args = parser.parse_args()
 dump_path = args.dump_path
 language = args.language
-categoriesfile=args.categories
-outdir=args.outdir
-titlesfile=args.titlesfile
-if titlesfile==None:
-    titlesfile="titles-list.txt"
-sortidatitles=codecs.open(titlesfile,"w",encoding="utf-8")
+category=args.category
+outfile=args.outfile
+limit=args.limit
 
-if not os.path.exists(outdir):
-    os.makedirs(outdir)
+categorylist=category.split(":")
 
-
-usercategories=[]
-if not categoriesfile==None:
-    entrada=codecs.open(categoriesfile,"r",encoding="utf-8")
-    for linia in entrada:
-        linia=linia.rstrip()
-        usercategories.append(linia)
-    entrada.close()
 
 # Define a dictionary with category namespaces for different languages
 category_namespaces = {
@@ -217,15 +203,18 @@ if not language in category_namespaces:
 
 
 
-valid_categories = []
-for cat in usercategories:
-    catcat=category_namespaces[language]+":"+cat
-    valid_categories.append(catcat)
-
-# Get the category namespace for the specified language
 category_namespace = category_namespaces.get(language, "Category")
 
 # Open the dump file
+
+categoriesmod=[]
+for cat in categorylist:
+    catmod=category_namespaces[language]+":"+cat
+    categoriesmod.append(catmod)
+    
+
+categoryfreq={}
+cont=0
 with bz2.open(dump_path, 'rb') as f:
     # Parse the dump file
     dump = mwxml.Dump.from_file(f)
@@ -236,22 +225,25 @@ with bz2.open(dump_path, 'rb') as f:
             for revision in page:
                 # Extract categories from the wikitext
                 categories = extract_categories_from_wikitext(revision.text, category_namespace)
-                if any(category in valid_categories for category in categories) or len(valid_categories)==0:
-                    text = extract_text_from_wikitext(revision.text)
-                    print(f"Title: {page.title}")
-                    sortidatitles.write(page.title+"\n")
-                    filename=page.title.replace(" ","_")+".txt"
-                    full_path = os.path.join(outdir, filename)
-                    try:
-                        sortida=codecs.open(full_path,"w",encoding="utf-8")
-                        sortida.write(page.title+"\n")
-                        linies=text.split("\n")
-                        for linia in linies:
-                            linia=linia.strip()
-                            
-                            if not linia.startswith(category_namespaces[language]) and not linia.startswith("|") and not linia.startswith("<") and not linia.startswith("!") and not linia.startswith("{")and len(linia)>0:
-                                sortida.write(linia+"\n")
-                        sortida.close()
-                    except:
-                        pass
-sortidatitles.close()
+                common_elements =  [element for element in categories if element in categoriesmod]
+                if len(common_elements)>0:
+                    cont+=1
+                    print(cont,limit)
+                    for categoria in categories:
+                        categoria=categoria.replace(category_namespaces[language]+":","")
+                        if not categoria in categoryfreq:
+                            categoryfreq[categoria]=1
+                        else:
+                            categoryfreq[categoria]+=1
+        if not limit==None and cont>=int(limit):
+            break
+
+sortida=codecs.open(outfile,"w",encoding="utf-8")
+
+sorted_dict = dict(sorted(categoryfreq.items(), key=lambda item: item[1],reverse=True))
+
+for key in sorted_dict:
+    print(key,sorted_dict[key])
+    sortida.write(key+"\n")
+    
+sortida.close()
