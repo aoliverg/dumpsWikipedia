@@ -12,9 +12,41 @@ To run the programs we need a set of files:
 
 # Get the list of relevant categories in the target language
 
+To create the list of relevant categories in the target language from an English category or a set of English categories, we can use the program createCategoryList.py. The option -h shows the help of the program:
+
+```
+python createCategoryList.py -h
+usage: createCategoryList.py [-h] -d FILENAME -c CATEGORIA --level LEVEL --lang LANG -o OUTFILE
+
+Script for the creation of lists of categories from Wikipedia
+
+options:
+  -h, --help            show this help message and exit
+  -d FILENAME, --database FILENAME
+                        The CCW sqlite database to use.
+  -c CATEGORIA, --categories CATEGORIA
+                        The categories to search for (a category or a list of categories separated by ,
+  --level LEVEL         The category level depth.
+  --lang LANG           The language (two letter ISO code used in Wikipedia.
+  -o OUTFILE, --output OUTFILE
+                        The name of the output path.
+```
+
+To get all the categories in Catalan from Linguistics and Philology with a deph of 3, we can write:
+
+```
+python createCategoryList.py -d CPfromWiki.sqlite -c Linguistics,Philology --level 3 --lang ca -o categories-cat.txt
+```
+
+In the file categories-cat.txt we will have th list of categories that can be used in the next step.
+
+This program has a version with an easy-to-use GUI interface: createCategoryListGUI. The windows executable version is available in the release. When we start the program the following interface is shown:
+
+![](https://github.com/mtuoc/tutorials/blob/main/images/CreateCategoryList.JPG)
+
 # Extract the text by category
 
-To extract all the text of all Wikipedia articles having a category from a list of categories, the script wikipedia2text.py can be used. The option -h shows the help:
+To extract all the text of all Wikipedia articles having a category from a list of categories, the script wikipedia2text.py can be used.  The option -h shows the help:
 
 ```
 python3 wikipedia2text.py -h
@@ -34,12 +66,15 @@ options:
                         The output directory
 ```
 
-The list of categories should be in a file with one category per line. The categories should be written in the same language as the Wikipedia we're using. 
+The list of categories should be in a file with one category per line. The categories should be written in the same language as the Wikipedia we're using. As the list of categories we can use the file obtained by createCategoryList program explained above.
 
 An example of use would be:
 
-```python3 wikipedia2text.py -d astwiki-20240501-pages-articles.xml.bz2 -l ast -c categories-ast.txt -o medicine-ast```
+```python3 wikipedia2text.py -d cawiki-20240501-pages-articles.xml.bz2 -l ca -c categories-cat.txt -o linguistics-cat```
 
-In the file categories-ast.txt we have a list of categories in Asturian. We have downloaded the dump astwiki-20240501-pages-articles.xml.bz2 from  https://dumps.wikimedia.org/backup-index.html.
+In the file categories-cat.txt we have a list of categories in Catalan. We have downloaded the dump cawiki-20240501-pages-articles.xml.bz2 from  [https://dumps.wikimedia.org/backup-index.html](https://dumps.wikimedia.org/backup-index.html)
 
-# Creating a list of related categories
+This program has a GUI version wikipedia2textGUI, that is also available as a windows executable in the release. When you run the program the following interface is shown:
+
+![](https://github.com/mtuoc/tutorials/blob/main/images/wikipedia2textGUI.JPG)
+
