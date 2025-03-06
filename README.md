@@ -6,7 +6,7 @@ This set of programs allows the extraction of article text having a category for
 
 To run the programs we need a set of files:
 
-* The database  [http://lpg.uoc.edu/CPfromWiki202310.sqlite]( http://lpg.uoc.edu/CPfromWiki202310.sqlite)
+* The database: [http://lpg.uoc.edu/CCWikipedia/CPFromWiki-20250306.sqlite](http://lpg.uoc.edu/CCWikipedia/CPFromWiki-20250306.sqlite)
 * The wikipedia dump: it is the file *-pages-articles.xml.bz2 from the given language wikipedia from [https://dumps.wikimedia.org/](https://dumps.wikimedia.org/)
 * The categories (in English) that we want to explore. You can get a list of categories by academic discipline from: [https://en.wikipedia.org/wiki/Outline_of_academic_disciplines](https://en.wikipedia.org/wiki/Outline_of_academic_disciplines)
 
